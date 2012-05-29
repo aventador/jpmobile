@@ -23,14 +23,17 @@ module Jpmobile
     DOCOMO_SJIS_REGEXP      = Regexp.union(*DOCOMO_SJIS_TO_UNICODE.keys.map{|s| Jpmobile::Util.sjis_regexp(s)})
     AU_SJIS_REGEXP          = Regexp.union(*AU_SJIS_TO_UNICODE.keys.map{|s| Jpmobile::Util.sjis_regexp(s)})
     SOFTBANK_UNICODE_REGEXP = Regexp.union(*SOFTBANK_UNICODE_TO_WEBCODE.keys.map{|x| [x].pack('U')}).freeze
+    IPHONE_UNICODE_REGEXP =
+      Regexp.union(*IPHONE_UNICODE_TO_SOFTBANK.keys.map{ |x| x.is_a?(Array) ? x.pack('UU') : [x].pack('U') }).freeze
 
-    EMOTICON_UNICODES = UNICODE_TO_SJIS.keys|SOFTBANK_UNICODE_TO_WEBCODE.keys.map{|k|k+0x1000}
-    UTF8_REGEXP = Regexp.union(*EMOTICON_UNICODES.map{|x| [x].pack('U')}).freeze
+    EMOTICON_UNICODES = UNICODE_TO_SJIS.keys|SOFTBANK_UNICODE_TO_WEBCODE.keys.map{|k|k+0x1000}|IPHONE_UNICODE_TO_SOFTBANK.keys
+    UTF8_REGEXP = Regexp.union(*EMOTICON_UNICODES.map{|x| x.is_a?(Array) ? x.pack('UU') : [x].pack('U') }).freeze
 
     # for PC conversion "GETA"
     CONVERSION_TABLE_TO_PC_EMAIL = Hash[*(CONVERSION_TABLE_TO_SOFTBANK.keys|CONVERSION_TABLE_TO_DOCOMO.keys|CONVERSION_TABLE_TO_AU.keys).map{|k| [k, GETA]}.flatten]
 
     SOFTBANK_SJIS_REGEXP = Regexp.union(*SOFTBANK_SJIS_TO_UNICODE.keys.map{|s| Jpmobile::Util.sjis_regexp(s)}).freeze
     AU_EMAILJIS_REGEXP = Regexp.union(*AU_EMAILJIS_TO_UNICODE.keys.map{|s| Jpmobile::Util.jis_regexp(s)})
+
   end
 end

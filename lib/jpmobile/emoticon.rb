@@ -18,12 +18,17 @@ module Jpmobile
     ).each do |const|
       autoload const, 'jpmobile/emoticon/softbank'
     end
+    %w(
+      IPHONE_UNICODE_TO_SOFTBANK
+    ).each do |const|
+      autoload const, 'jpmobile/emoticon/iphone'
+    end
     %w( CONVERSION_TABLE_TO_DOCOMO CONVERSION_TABLE_TO_AU CONVERSION_TABLE_TO_SOFTBANK ).each do |const|
       autoload const, 'jpmobile/emoticon/conversion_table'
     end
     %w(
       SJIS_TO_UNICODE UNICODE_TO_SJIS
-      SJIS_REGEXP SOFTBANK_WEBCODE_REGEXP DOCOMO_SJIS_REGEXP AU_SJIS_REGEXP SOFTBANK_UNICODE_REGEXP
+      SJIS_REGEXP SOFTBANK_WEBCODE_REGEXP DOCOMO_SJIS_REGEXP AU_SJIS_REGEXP SOFTBANK_UNICODE_REGEXP IPHONE_UNICODE_REGEXP
       EMOTICON_UNICODES UTF8_REGEXP
       CONVERSION_TABLE_TO_PC_EMAIL SOFTBANK_SJIS_REGEXP AU_EMAILJIS_REGEXP
     ).each do |const|
@@ -78,6 +83,20 @@ module Jpmobile
     end
     def self.external_to_unicodecr_vodafone(str)
       external_to_unicodecr_softbank(str)
+    end
+    # +str+のなかでUnicode6.0絵文字をSoftbankのUnicode数値文字参照に変換した文字列を返す。
+    def self.external_to_unicodecr_iphone(str)
+      # iphoneの絵文字はSoftbankの絵文字に変換する
+      str.gsub(IPHONE_UNICODE_REGEXP) do |match|
+        unicodes = match.unpack('UU')
+        iphone_unicode = if unicodes.size < 2
+                           unicodes.first
+                         else
+                           unicodes
+                         end
+        softbank_unicode = IPHONE_UNICODE_TO_SOFTBANK[iphone_unicode]
+        "&#x%04x;" % (softbank_unicode ? (softbank_unicode+0x1000) : GETA)
+      end
     end
 
     # +str+ のなかでUnicode数値文字参照で表記された絵文字を携帯側エンコーディングに置換する。
